@@ -4,23 +4,31 @@ const router = express.Router();
 
 const auth = require("../middleware/authMiddleware");
 
-router.get("/profile", auth, (req, res) => {
+const {
+  register,
+  login,
+  logout,
+  getMe,
+} = require("../controllers/authController");
+
+router.post("/register", register);
+
+router.post("/login", login);
+
+router.post("/logout", logout);
+
+router.get("/me", auth(), getMe);
+
+router.get("/vendor-dashboard", auth(["vendor"]), (req, res) => {
   res.json({
-    message: "Protected Route Accessed",
-    user: req.user,
+    message: "Vendor Dashboard",
   });
 });
 
-const {
-  registerUser,
-  loginUser,
-  logoutUser,
-} = require("../controllers/authController");
-
-router.post("/register", registerUser);
-
-router.post("/login", loginUser);
-
-router.get("/logout", logoutUser);
+router.get("/admin-dashboard", auth(["admin"]), (req, res) => {
+  res.json({
+    message: "Admin Dashboard",
+  });
+});
 
 module.exports = router;
