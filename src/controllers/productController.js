@@ -145,6 +145,23 @@ const uploadProductImage = async (req, res) => {
       });
     }
 
+    const store = await Store.findOne({
+      owner: req.user.id,
+    });
+
+    if (product.store.toString() !== store._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    // delete old image
+
+    if (product.image?.public_id) {
+      await cloudinary.uploader.destroy(product.image.public_id);
+    }
+
     const result = await cloudinary.uploader.upload(
       `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
       {
@@ -152,13 +169,33 @@ const uploadProductImage = async (req, res) => {
       },
     );
 
-    product.image = result.secure_url;
+    product.image = {
+      url: result.secure_url,
+      public_id: result.public_id,
+    };
 
     await product.save();
 
     res.status(200).json({
       success: true,
-      image: result.secure_url,
+      image: product.image,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getAllProducts = async (req, res) => {
+  try {
+    const products = await Product.find().populate("store", "storeName");
+
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      products,
     });
   } catch (error) {
     res.status(500).json({
@@ -174,4 +211,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   uploadProductImage,
+  getAllProducts,
 };

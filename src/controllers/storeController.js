@@ -90,8 +90,40 @@ const updateStore = async (req, res) => {
   }
 };
 
+const deleteStore = async (req, res) => {
+  try {
+    const store = await Store.findOne({
+      owner: req.user.id,
+    });
+
+    if (!store) {
+      return res.status(404).json({
+        success: false,
+        message: "Store not found",
+      });
+    }
+
+    await Product.deleteMany({
+      store: store._id,
+    });
+
+    await store.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: "Store deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createStore,
   getMyStore,
   updateStore,
+  deleteStore,
 };

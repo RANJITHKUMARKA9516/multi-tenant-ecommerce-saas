@@ -3,6 +3,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const storeRoutes = require("./src/routes/storeRoutes");
 const productRoutes = require("./src/routes/productRoutes");
+const testRoutes = require("./src/routes/testRoutes");
 
 const authRoutes = require("./src/routes/authRoutes");
 
@@ -21,5 +22,6 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/stores", storeRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/test", testRoutes);
 
 module.exports = app;

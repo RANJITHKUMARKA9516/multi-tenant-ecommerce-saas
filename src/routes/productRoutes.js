@@ -1,5 +1,5 @@
 const express = require("express");
-// const upload = require("../middleware/uploadMiddleware");
+const upload = require("../middleware/uploadMiddleware");
 
 const router = express.Router();
 
@@ -11,17 +11,23 @@ const {
   updateProduct,
   deleteProduct,
   uploadProductImage,
+  getAllProducts,
 } = require("../controllers/productController");
 
-router.post("/", auth(["vendor"]), createProduct);
-// router.post(
-//   "/image/:id",
-//   auth(["vendor"]),
-//   upload.single("image"),
-//   uploadProductImage,
-// );
+// Public Routes
+router.get("/", getAllProducts);
 
+// Vendor Routes
 router.get("/my-products", auth(["vendor"]), getMyProducts);
+
+router.post("/", auth(["vendor"]), createProduct);
+
+router.post(
+  "/image/:id",
+  auth(["vendor"]),
+  upload.single("image"),
+  uploadProductImage,
+);
 
 router.put("/:id", auth(["vendor"]), updateProduct);
 
