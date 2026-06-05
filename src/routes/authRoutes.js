@@ -9,6 +9,8 @@ const {
   login,
   logout,
   getMe,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/authController");
 
 router.post("/register", register);
@@ -30,5 +32,9 @@ router.get("/admin-dashboard", auth(["admin"]), (req, res) => {
     message: "Admin Dashboard",
   });
 });
+
+router.post("/forgot-password", forgotPassword);
+
+router.post("/reset-password/:token", resetPassword);
 
 module.exports = router;
