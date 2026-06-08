@@ -1,6 +1,7 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
+const Store = require("../models/Store");
 
 const createOrder = async (req, res) => {
   try {
@@ -170,10 +171,111 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const getVendorOrders = async (req, res) => {
+  try {
+    const store = await Store.findOne({
+      owner: req.user.id,
+    });
+
+    if (!store) {
+      return res.status(404).json({
+        success: false,
+        message: "Store not found",
+      });
+    }
+
+    const products = await Product.find({
+      store: store._id,
+    });
+
+    const productIds = products.map((product) => product._id);
+
+    const orders = await Order.find({
+      "items.product": {
+        $in: productIds,
+      },
+    })
+      .populate("customer", "name email")
+      .populate("items.product");
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getVendorAnalytics = async (req, res) => {
+  try {
+    const store = await Store.findOne({
+      owner: req.user.id,
+    });
+
+    if (!store) {
+      return res.status(404).json({
+        success: false,
+        message: "Store not found",
+      });
+    }
+
+    const products = await Product.find({
+      store: store._id,
+    });
+
+    const productIds = products.map((p) => p._id);
+
+    const orders = await Order.find({
+      "items.product": {
+        $in: productIds,
+      },
+    });
+
+    let revenue = 0;
+
+    orders.forEach((order) => {
+      order.items.forEach((item) => {
+        if (
+          productIds.some((id) => id.toString() === item.product.toString())
+        ) {
+          revenue += item.price * item.quantity;
+        }
+      });
+    });
+
+    const lowStockProducts = products.filter((product) => product.stock < 5);
+
+    res.status(200).json({
+      success: true,
+
+      analytics: {
+        totalProducts: products.length,
+
+        totalOrders: orders.length,
+
+        revenue,
+
+        lowStock: lowStockProducts.length,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getMyOrders,
   getOrderById,
   getAllOrders,
   updateOrderStatus,
+  getVendorOrders,
 };
