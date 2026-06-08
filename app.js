@@ -8,6 +8,7 @@ const cartRoutes = require("./src/routes/cartRoutes");
 
 const authRoutes = require("./src/routes/authRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
+const analyticsRoutes = require("./src/routes/analyticsRoutes");
 
 const app = express();
 
@@ -27,5 +28,6 @@ app.use("/api/products", productRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 module.exports = app;
