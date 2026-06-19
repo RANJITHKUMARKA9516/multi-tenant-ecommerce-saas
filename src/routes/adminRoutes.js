@@ -9,8 +9,19 @@ const {
   updateOrderStatus,
 } = require("../controllers/orderController");
 
-router.get("/orders", auth(["admin"]), getAllOrders);
+const {
+  getPendingStores,
+  approveStore,
+  getAdminAnalytics,
+} = require("../controllers/adminController");
 
-router.put("/orders/:id", auth(["admin"]), updateOrderStatus);
+router.get("/stores/pending", getPendingStores);
+
+router.put("/stores/:id/approve", approveStore);
+router.get("/analytics", getAdminAnalytics);
+
+router.get("/orders", getAllOrders);
+
+router.put("/orders/:id/status", updateOrderStatus);
 
 module.exports = router;

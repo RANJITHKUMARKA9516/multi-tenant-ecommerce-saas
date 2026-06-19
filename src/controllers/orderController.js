@@ -145,7 +145,12 @@ const getAllOrders = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
+    console.log("Order ID:", req.params.id);
+    console.log("Status:", req.body.status);
+
     const order = await Order.findById(req.params.id);
+
+    console.log("Order Found:", order);
 
     if (!order) {
       return res.status(404).json({
@@ -158,19 +163,22 @@ const updateOrderStatus = async (req, res) => {
 
     await order.save();
 
+    console.log("Updated Order:", order);
+
     res.status(200).json({
       success: true,
       message: "Order updated",
       order,
     });
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
-
 const getVendorOrders = async (req, res) => {
   try {
     const store = await Store.findOne({
@@ -278,4 +286,5 @@ module.exports = {
   getAllOrders,
   updateOrderStatus,
   getVendorOrders,
+  getVendorAnalytics,
 };

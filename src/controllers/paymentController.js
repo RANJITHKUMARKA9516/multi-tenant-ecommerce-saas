@@ -29,6 +29,7 @@ const createPaymentOrder = async (req, res) => {
     res.status(200).json({
       success: true,
       order,
+      key: process.env.RAZORPAY_KEY_ID,
     });
   } catch (error) {
     res.status(500).json({

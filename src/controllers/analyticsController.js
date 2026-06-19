@@ -5,35 +5,73 @@ const Order = require("../models/Order");
 
 const getAdminAnalytics = async (req, res) => {
   try {
+    console.log("ADMIN ANALYTICS HIT");
+
+    const orders = await Order.find();
+
+    console.log("TOTAL ORDERS FOUND:", orders.length);
+    console.log("FIRST ORDER:", orders[0]);
+    const totalRevenue = orders.reduce((sum, order) => {
+      return sum + Number(order.totalAmount || 0);
+    }, 0);
+
+    console.log("TOTAL REVENUE:", totalRevenue);
+
     const totalUsers = await User.countDocuments();
 
+    const totalVendors = await User.countDocuments({
+      role: "vendor",
+    });
+
+    const totalCustomers = await User.countDocuments({
+      role: "customer",
+    });
+
     const totalStores = await Store.countDocuments();
+
+    const pendingStores = await Store.countDocuments({
+      status: "pending",
+    });
+
+    const approvedStores = await Store.countDocuments({
+      status: "approved",
+    });
+
+    const rejectedStores = await Store.countDocuments({
+      status: "rejected",
+    });
 
     const totalProducts = await Product.countDocuments();
 
     const totalOrders = await Order.countDocuments();
 
-    const revenueData = await Order.aggregate([
-      {
-        $group: {
-          _id: null,
-          revenue: {
-            $sum: "$totalAmount",
-          },
-        },
-      },
-    ]);
+    const pendingOrders = await Order.countDocuments({
+      status: "Pending",
+    });
 
-    const totalRevenue = revenueData[0]?.revenue || 0;
+    const processingOrders = await Order.countDocuments({
+      status: "Processing",
+    });
+
+    const deliveredOrders = await Order.countDocuments({
+      status: "Delivered",
+    });
 
     res.status(200).json({
       success: true,
-
       analytics: {
         totalUsers,
+        totalVendors,
+        totalCustomers,
         totalStores,
+        pendingStores,
+        approvedStores,
+        rejectedStores,
         totalProducts,
         totalOrders,
+        pendingOrders,
+        processingOrders,
+        deliveredOrders,
         totalRevenue,
       },
     });

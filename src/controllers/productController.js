@@ -11,7 +11,14 @@ const createProduct = async (req, res) => {
     if (!store) {
       return res.status(404).json({
         success: false,
-        message: "Store not found",
+        message: "Create a store first",
+      });
+    }
+
+    if (store.status !== "approved") {
+      return res.status(403).json({
+        success: false,
+        message: "Store approval pending. Contact admin.",
       });
     }
 
